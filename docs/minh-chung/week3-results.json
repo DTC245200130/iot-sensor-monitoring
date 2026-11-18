@@ -1,0 +1,122 @@
+[
+  {
+    "Test": "TN1: two independent connections",
+    "Passed": true,
+    "Detail": "Two HubConnections have different ConnectionIds; SystemMessage observed."
+  },
+  {
+    "Test": "TN1: Echo reaches Caller only",
+    "Passed": true,
+    "Detail": "B received EchoResponse; A did not."
+  },
+  {
+    "Test": "TN2: Broadcast reaches All",
+    "Passed": true,
+    "Detail": "A and B received BroadcastMessage."
+  },
+  {
+    "Test": "TN3: other group excluded",
+    "Passed": true,
+    "Detail": "A in room-a received; B in room-b did not."
+  },
+  {
+    "Test": "TN3: same group receives",
+    "Passed": true,
+    "Detail": "A and B joined room-a and received GroupMessage."
+  },
+  {
+    "Test": "TN3: LeaveGroup takes effect",
+    "Passed": true,
+    "Detail": "B no longer receives room-a messages."
+  },
+  {
+    "Test": "Invalid group rejected",
+    "Passed": true,
+    "Detail": "Blank group returns HubException."
+  },
+  {
+    "Test": "Invalid message rejected",
+    "Passed": true,
+    "Detail": "Blank broadcast returns HubException."
+  },
+  {
+    "Test": "Normal readings realtime; equal threshold no alert",
+    "Passed": true,
+    "Detail": "Value 35 == threshold 35: ReadingReceived on A/B, no AlertRaised."
+  },
+  {
+    "Test": "Above threshold alerts realtime",
+    "Passed": true,
+    "Detail": "Value 36 \u003E 35: ReadingReceived and AlertRaised on both subscribers."
+  },
+  {
+    "Test": "Sensor subscription filters reading and alert",
+    "Passed": true,
+    "Detail": "A follows all sensors; B follows sensor1 and receives neither event for sensor2."
+  },
+  {
+    "Test": "Overlapping subscriptions deliver once",
+    "Passed": true,
+    "Detail": "A in all-sensors and sensor1 groups receives each event once."
+  },
+  {
+    "Test": "Unsubscribe stops realtime data",
+    "Passed": true,
+    "Detail": "B leaves its sensor group; A continues receiving."
+  },
+  {
+    "Test": "Invalid HTTP data does not broadcast",
+    "Passed": true,
+    "Detail": "Missing timestamp returns 400 and emits no ReadingReceived."
+  },
+  {
+    "Test": "REST and realtime reference the same reading",
+    "Passed": true,
+    "Detail": "Latest REST reading ID matches the event payload."
+  },
+  {
+    "Test": "Console Monitor connects and exits cleanly",
+    "Passed": true,
+    "Detail": "Real Monitor process --duration 2 completed with exit code 0."
+  },
+  {
+    "Test": "SystemMessage on disconnect",
+    "Passed": true,
+    "Detail": "Existing monitor saw another monitor disconnect."
+  },
+  {
+    "Test": "TN4: Reconnecting observed",
+    "Passed": true,
+    "Detail": "A and B detect the stopped API."
+  },
+  {
+    "Test": "TN4: automatic reconnect",
+    "Passed": true,
+    "Detail": "Monitor reconnected with a new ConnectionId."
+  },
+  {
+    "Test": "TN4: groups restored after reconnect",
+    "Passed": true,
+    "Detail": "A and B receive room-a message after rejoining automatically."
+  },
+  {
+    "Test": "Restart remains in-memory",
+    "Passed": true,
+    "Detail": "Week-2 storage limitation remains explicit."
+  },
+  {
+    "Test": "Live IoT alerts resume after reconnect",
+    "Passed": true,
+    "Detail": "A restored all-sensors subscription and received new reading/alert."
+  },
+  {
+    "Test": "TN4: Closed after retry exhaustion",
+    "Passed": true,
+    "Detail": "A short retry policy exhausts while the API stays offline; Closed observed."
+  },
+  {
+    "Test": "Initial StartAsync failure is explicit",
+    "Passed": true,
+    "Detail": "AutomaticReconnect does not hide an initial offline API."
+  }
+]

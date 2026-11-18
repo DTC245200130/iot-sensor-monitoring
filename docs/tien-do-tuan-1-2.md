@@ -1,5 +1,8 @@
 # Báo cáo tiến độ tuần 1-2
 
+Đây là bản ghi mốc tuần 1-2 tại commit `b454aff`. Phần SignalR bổ sung sau mốc này
+được trình bày tại [báo cáo tuần 3](tien-do-tuan-3.md) và README hiện tại.
+
 ## Căn cứ và phạm vi
 
 Đề tài 06 yêu cầu hệ thống giám sát cảm biến IoT. Các bài thực hành được cung cấp:

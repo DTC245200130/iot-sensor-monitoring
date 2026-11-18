@@ -3,5 +3,9 @@
     <Project Path="src/Sensor.Api/Sensor.Api.csproj" />
     <Project Path="src/Sensor.Client/Sensor.Client.csproj" />
     <Project Path="src/Sensor.Contracts/Sensor.Contracts.csproj" />
+    <Project Path="src/Sensor.Monitor/Sensor.Monitor.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Sensor.IntegrationTests/Sensor.IntegrationTests.csproj" />
   </Folder>
 </Solution>

@@ -1,81 +1,119 @@
 # Hệ thống giám sát cảm biến IoT
 
 Bài tập lớn học phần **Phát triển ứng dụng phân tán**, đề tài 06.
-Mốc hiện tại: **tuần 2 - Minimal API, REST và Console Client** trên C#/.NET 10.
+Mốc hiện tại: **tuần 3 - SignalR thời gian thực** trên C#/.NET 10.
 
-## Phạm vi hiện tại
+## Đã thực hiện
 
-- Đăng ký, liệt kê và xem chi tiết cảm biến.
-- Tiếp nhận dữ liệu đo từ nhiều cảm biến giả lập qua HTTP/JSON.
-- Xem dữ liệu mới nhất theo thời điểm đo; lọc lịch sử theo khoảng thời gian, phân trang.
-- Kiểm tra đầu vào và trả HTTP 200/201/400/404, có `Location` khi tạo mới.
-- Tính trạng thái vượt ngưỡng: `value > alertThreshold`.
-- Console Client dùng `HttpClient`, chạy hai luồng giả lập đồng thời và xử lý lỗi kết nối.
+- Tuần 1-2: Minimal API, REST, đăng ký cảm biến, tiếp nhận lần đo, latest/lịch sử, Console Client dùng HttpClient.
+- Tuần 3: SignalR Hub, Console Monitor, Caller/All/Group, dữ liệu đo và cảnh báo realtime.
+- Theo dõi tất cả hoặc từng cảm biến; hủy theo dõi; xử lý Reconnecting/Reconnected/Closed và tự tham gia lại nhóm.
+- Kiểm tra dữ liệu đầu vào, trạng thái HTTP và log các thành phần.
 
-Dữ liệu đang lưu trong bộ nhớ tiến trình, mất khi API khởi động lại. Chưa có RabbitMQ,
-Monitor Worker, cơ sở dữ liệu, Notification Service, SignalR/Dashboard hay Docker.
-Đây là bản tiến độ tuần 2, chưa phải hệ thống hoàn chỉnh theo yêu cầu cuối kỳ.
+Dữ liệu đang lưu trong bộ nhớ và mất khi API khởi động lại. Chưa triển khai RabbitMQ,
+Monitor Worker, database, Notification Service độc lập, Web Dashboard hoặc Docker.
+Đây là bản tiến độ tuần 3; các thành phần còn lại thuộc các mốc sau.
+Mốc tuần được đối chiếu theo bài thực hành 1.2, 2.2 và 3.2 vì chưa có lịch tiến độ riêng của giảng viên.
 
-Mốc tuần 2 được hiểu là vận dụng bài thực hành 1.2 và 2.2 vào đề tài IoT.
-Tài liệu được cung cấp chưa có bảng phân công tiến độ tuần riêng của giảng viên.
+## Chạy demo tuần 3
 
-## Chạy trên máy
+Cần .NET SDK **10.x** và kết nối NuGet cho lần restore đầu.
+SignalR server có sẵn trong ASP.NET Core; Monitor dùng gói
+Microsoft.AspNetCore.SignalR.Client **10.0.14**. Dùng bản vá cùng dòng .NET 10 thay cho
+10.0.0 trong bài thực hành vì NuGet báo NU1903 với bản cũ; không tắt kiểm tra NuGet.
 
-Cần .NET SDK **10.x**. Không cần cài package ngoài hoặc cơ sở dữ liệu.
-Mở terminal ở thư mục chứa `IoTSensorMonitoring.slnx`:
+Terminal 1 - API:
 
 ```powershell
 dotnet build IoTSensorMonitoring.slnx
 dotnet run --project src/Sensor.Api --no-launch-profile --urls http://localhost:5100
 ```
 
-Giữ API chạy, mở terminal thứ hai:
+Terminal 2 - Monitor nhận dữ liệu/cảnh báo của tất cả cảm biến:
+
+```powershell
+dotnet run --project src/Sensor.Monitor -- http://localhost:5100
+```
+
+Terminal 3 - một Monitor khác để đối chiếu phạm vi nhận:
+
+```powershell
+dotnet run --project src/Sensor.Monitor -- http://localhost:5100 --no-group
+```
+
+Terminal 4 - giả lập hai cảm biến gửi dữ liệu:
 
 ```powershell
 dotnet run --project src/Sensor.Client -- http://localhost:5100
 ```
 
-Client tạo hai cảm biến nhiệt độ/độ ẩm, mỗi cảm biến gửi ba lần đo, đọc lại dữ liệu
-mới nhất/lịch sử và thử một yêu cầu sai để quan sát HTTP 400.
-Chạy client lần nữa sẽ tạo thêm hai cảm biến. Dừng API bằng `Ctrl+C`.
+Monitor mặc định nhận ReadingReceived và AlertRaised. Monitor --no-group vẫn nhận
+Broadcast/System và Echo của chính nó, nhưng không nhận dữ liệu đo khi chưa theo dõi nhóm cảm biến.
+Giá trị bằng ngưỡng không cảnh báo; chỉ value > alertThreshold mới phát AlertRaised.
 
-Đổi cổng bằng `--urls`; truyền cùng URL cho client. Client cũng đọc biến môi trường
-`SENSOR_API_URL` khi không có tham số URL; mặc định là `http://localhost:5100`.
+Các lệnh nhập trong Monitor:
 
-## Cấu trúc
+| Lệnh | Tác dụng |
+|---|---|
+| /echo Xin chao | Phản hồi Echo chỉ về chính kết nối gọi |
+| /all Thong bao | Broadcast tới mọi monitor đang kết nối |
+| /join phong-a | Tham gia nhóm phong-a |
+| /group phong-a Noi dung | Gửi tới các monitor trong phong-a |
+| /leave phong-a | Rời nhóm |
+| /watchall | Theo dõi mọi cảm biến |
+| /unwatchall | Bỏ theo dõi mọi cảm biến |
+| /watch <sensor-guid> | Theo dõi riêng một cảm biến |
+| /leave sensor:<sensor-guid> | Bỏ theo dõi riêng cảm biến đó |
+| /quit | Thoát monitor |
+
+Có thể khởi chạy với --sensor <guid>, --group phong-a, hoặc --no-group để chọn nhóm ban đầu.
+Mặc định là nhóm sensors:all; các tùy chọn chọn nhóm ban đầu ghi đè nhau theo thứ tự nhập.
+--duration 10 giữ kết nối 10 giây rồi thoát, hữu ích khi demo tự động.
+Dùng --help để xem cú pháp. Đổi cổng API thì truyền cùng URL cho các client.
+Sensor.Client cũng hỗ trợ biến môi trường SENSOR_API_URL nếu không truyền URL.
+
+Dừng API và khởi động lại sớm để quan sát Reconnecting/Reconnected. Monitor tự tham gia lại
+các nhóm; dữ liệu trong bộ nhớ API vẫn mất, nên cần chạy lại Sensor.Client để tạo cảm biến mới.
+SignalR không phát lại sự kiện bị lỡ. Lần kết nối đầu thất bại cần chạy lại Monitor;
+sau khi dùng hết lượt reconnect, Closed xuất hiện và cũng cần chạy lại Monitor.
+
+## Cấu trúc và luồng dữ liệu
 
 ```text
-IoTSensorMonitoring.slnx
-src/
-  Sensor.Api/          ASP.NET Core Minimal API và kho lưu trong bộ nhớ
-  Sensor.Client/       Console App giả lập cảm biến, gọi REST API
-  Sensor.Contracts/    DTO request/response dùng chung
-scripts/
-  verify-week2.ps1     Build, chạy API và kiểm tra HTTP tự động
-docs/
-  tien-do-tuan-1-2.md  Phạm vi, thiết kế, giải thích và kịch bản báo cáo
-  api.md              Đặc tả endpoint và ví dụ JSON
-  minh-chung/          Kết quả kiểm thử thực tế
+src/Sensor.Api/          REST API, SensorHub, kho dữ liệu và danh sách đăng ký nhóm
+src/Sensor.Client/       Console giả lập cảm biến qua HTTP
+src/Sensor.Monitor/      Console giám sát qua SignalR
+src/Sensor.Contracts/    DTO và tên sự kiện dùng chung
+tests/Sensor.IntegrationTests/  Kiểm thử tích hợp với hai SignalR client thật
+scripts/                Script xác minh tuần 2 và 3
+docs/                   API, báo cáo tiến độ, minh chứng kiểm thử
 ```
 
-Luồng hiện tại: `Sensor.Client -> HTTP/JSON -> Sensor.Api -> InMemorySensorStore`.
-Hai chương trình chạy trong hai tiến trình riêng. Contracts là thư viện DTO, không phải service.
+```text
+Sensor.Client -- HTTP POST --> Sensor.Api --> InMemorySensorStore
+                                  |
+                                  +-- SignalR /hubs/sensors --> Sensor.Monitor A/B
+```
+
+API, Simulator và Monitor là các tiến trình riêng. Ở tuần 3, Sensor.Api xử lý lần đo,
+đánh dấu cảnh báo và push trực tiếp qua IHubContext; chưa có bước RabbitMQ/Worker.
+Nhóm dùng phân loại người nhận, chưa có xác thực/phân quyền.
 
 ## Kiểm chứng
 
-Windows PowerShell hoặc PowerShell 7:
-
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-week2.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts/verify-week3.ps1
 ```
 
-Script tự chọn cổng trống, build Release, khởi chạy/dừng API của lần kiểm tra và ghi
-log/JSON vào `artifacts/`. Có thể chỉ định `-Port 5200` nếu cổng đó chưa được sử dụng.
-Các ca bao gồm ngưỡng bằng/vượt, dữ liệu đến sai thứ tự, múi giờ, lọc khoảng thời gian,
-20 POST đồng thời, client khi API tắt và việc mất dữ liệu sau restart.
+Script tự chọn cổng trống, chỉ khởi chạy/dừng API thử nghiệm của nó và ghi log/JSON
+vào artifacts/. Tuần 2: 32 kiểm tra REST. Tuần 3: 24 kiểm tra tích hợp SignalR,
+bao gồm hai kết nối, Console Monitor thật, đúng phạm vi gửi, ngưỡng cảnh báo,
+đăng ký chồng nhóm không nhận trùng, reconnect/rejoin và Closed.
+Workflow GitHub Actions chạy cả hai script khi push/PR.
 
-Kết quả đã ghi nhận: **build 0 lỗi/0 cảnh báo, 32 kiểm tra đạt**, cùng các xác nhận
-giá trị phản hồi và tính toàn vẹn dữ liệu. Xem [minh chứng](docs/minh-chung/ket-qua-tuan-2.md).
-Workflow GitHub Actions sẽ chạy cùng script khi push/PR; chưa có kết quả CI từ xa trước khi đẩy repo.
-
-Xem [API](docs/api.md) và [báo cáo tiến độ](docs/tien-do-tuan-1-2.md) để chuẩn bị demo.
+- [API REST](docs/api.md)
+- [Báo cáo tiến độ tuần 1-2](docs/tien-do-tuan-1-2.md)
+- [Báo cáo và hướng dẫn demo tuần 3](docs/tien-do-tuan-3.md)
+- [Minh chứng tuần 2](docs/minh-chung/ket-qua-tuan-2.md)
+- [Minh chứng tuần 3](docs/minh-chung/ket-qua-tuan-3.md)

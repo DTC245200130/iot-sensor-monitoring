@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.SignalR;
+using Sensor.Api.Hubs;
 using Sensor.Api.Services;
 using Sensor.Contracts;
 
@@ -6,6 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders();
 builder.Logging.AddSimpleConsole(options => options.SingleLine = true);
 builder.Services.AddSingleton<InMemorySensorStore>();
+builder.Services.AddSingleton<SensorSubscriptions>();
+builder.Services.AddSignalR();
 builder.Services.Configure<RouteHandlerOptions>(options => options.ThrowOnBadRequest = true);
 var app = builder.Build();
 
@@ -20,7 +24,8 @@ app.UseExceptionHandler(errorApp => errorApp.Run(async context =>
 
 app.MapGet("/", () => Results.Ok(new
 {
-    service = "Sensor.Api", status = "running", milestone = "week-2", storage = "in-memory"
+    service = "Sensor.Api", status = "running", milestone = "week-3", storage = "in-memory",
+    hub = RealtimeProtocol.HubPath
 }));
 
 app.MapPost("/sensors", (CreateSensorRequest request, InMemorySensorStore store, ILogger<Program> logger) =>
@@ -39,8 +44,8 @@ app.MapGet("/sensors", (InMemorySensorStore store) => Results.Ok(store.GetSensor
 app.MapGet("/sensors/{id:guid}", (Guid id, InMemorySensorStore store) =>
     store.GetSensor(id) is { } sensor ? Results.Ok(sensor) : SensorNotFound());
 
-app.MapPost("/sensors/{id:guid}/readings", (Guid id, CreateReadingRequest request,
-    InMemorySensorStore store, ILogger<Program> logger) =>
+app.MapPost("/sensors/{id:guid}/readings", async Task<IResult> (Guid id, CreateReadingRequest request,
+    InMemorySensorStore store, IHubContext<SensorHub> hub, SensorSubscriptions subscriptions, ILogger<Program> logger) =>
 {
     if (store.GetSensor(id) is null) return SensorNotFound();
     if (request.Value is null || request.MeasuredAt is null || request.MeasuredAt == default(DateTimeOffset))
@@ -48,6 +53,11 @@ app.MapPost("/sensors/{id:guid}/readings", (Guid id, CreateReadingRequest reques
     var reading = store.AddReading(id, request);
     logger.LogInformation("Received reading {ReadingId} for {SensorId}: {Value}, alert={IsAlert}",
         reading.Id, id, reading.Value, reading.IsAlert);
+    // Week 3: synchronous processing plus best-effort realtime delivery; no message broker yet.
+    var recipients = hub.Clients.Clients(subscriptions.ForSensor(id));
+    await recipients.SendAsync(RealtimeProtocol.ReadingReceived, reading);
+    if (reading.IsAlert)
+        await recipients.SendAsync(RealtimeProtocol.AlertRaised, reading);
     return Results.Created($"/sensors/{id}/readings?from={Uri.EscapeDataString(reading.MeasuredAt.ToString("O"))}&to={Uri.EscapeDataString(reading.MeasuredAt.ToString("O"))}", reading);
 });
 
@@ -67,6 +77,7 @@ app.MapGet("/sensors/{id:guid}/readings", (Guid id, DateTimeOffset? from, DateTi
     return Results.Ok(store.GetHistory(id, from, to, skip ?? 0, take ?? 100));
 });
 
+app.MapHub<SensorHub>(RealtimeProtocol.HubPath);
 app.Run();
 
 static IResult SensorNotFound() => Results.NotFound(new ApiError("SENSOR_NOT_FOUND", "The sensor does not exist."));

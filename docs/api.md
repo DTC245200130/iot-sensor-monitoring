@@ -1,4 +1,4 @@
-# Sensor API - mốc tuần 2
+# Sensor API - hợp đồng REST từ mốc tuần 2
 
 Base URL mặc định: `http://localhost:5100`. Body JSON dùng tên trường camelCase.
 Các ID do server sinh là UUID/GUID; client không tự chọn ID.
@@ -59,7 +59,9 @@ Response:
 
 Các chuỗi trong dấu `<...>` là ký hiệu minh họa, thay bằng giá trị thực khi gọi API.
 `isAlert` chỉ đúng khi **lớn hơn** ngưỡng; bằng ngưỡng vẫn là bình thường.
-Ở tuần 2, đây là cờ dữ liệu, chưa phải thông báo realtime.
+Ở tuần 3, API còn phát ReadingReceived qua SignalR và phát AlertRaised nếu vượt ngưỡng.
+Chỉ các Monitor theo dõi nhóm tất cả/cảm biến tương ứng nhận được sự kiện;
+xem [hợp đồng SignalR và hướng dẫn demo](tien-do-tuan-3.md).
 `Location` trỏ tới lịch sử lọc đúng thời điểm đo, có chứa bản ghi vừa tạo.
 
 ## Lịch sử và dữ liệu mới nhất
