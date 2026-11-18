@@ -1,0 +1,322 @@
+﻿[
+    {
+        "Test":  "API status",
+        "Method":  "GET",
+        "Path":  "/",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"service\":\"Sensor.Api\",\"status\":\"running\",\"milestone\":\"week-2\",\"storage\":\"in-memory\"}"
+    },
+    {
+        "Test":  "Initially empty list",
+        "Method":  "GET",
+        "Path":  "/sensors",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "[]"
+    },
+    {
+        "Test":  "Register sensor",
+        "Method":  "POST",
+        "Path":  "/sensors",
+        "Expected":  201,
+        "Actual":  201,
+        "Passed":  true,
+        "Location":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971",
+        "Body":  "{\"id\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"name\":\"Room A\",\"type\":\"temperature\",\"unit\":\"C\",\"alertThreshold\":35,\"createdAt\":\"2026-11-18T08:02:07.3198313+00:00\"}"
+    },
+    {
+        "Test":  "Follow Location",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"id\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"name\":\"Room A\",\"type\":\"temperature\",\"unit\":\"C\",\"alertThreshold\":35,\"createdAt\":\"2026-11-18T08:02:07.3198313+00:00\"}"
+    },
+    {
+        "Test":  "Unknown sensor",
+        "Method":  "GET",
+        "Path":  "/sensors/ccb9fbb9-4140-4109-a538-fbd2192cdf53",
+        "Expected":  404,
+        "Actual":  404,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"SENSOR_NOT_FOUND\",\"message\":\"The sensor does not exist.\"}"
+    },
+    {
+        "Test":  "Route constraint",
+        "Method":  "GET",
+        "Path":  "/sensors/not-a-guid",
+        "Expected":  404,
+        "Actual":  404,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  ""
+    },
+    {
+        "Test":  "Invalid sensor",
+        "Method":  "POST",
+        "Path":  "/sensors",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_SENSOR\",\"message\":\"Name (1-100), type (1-50), unit (1-20) and alertThreshold are required.\"}"
+    },
+    {
+        "Test":  "Missing threshold",
+        "Method":  "POST",
+        "Path":  "/sensors",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_SENSOR\",\"message\":\"Name (1-100), type (1-50), unit (1-20) and alertThreshold are required.\"}"
+    },
+    {
+        "Test":  "Malformed JSON",
+        "Method":  "POST",
+        "Path":  "/sensors",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_REQUEST\",\"message\":\"Check the JSON body, content type and query parameters.\"}"
+    },
+    {
+        "Test":  "Empty sensor body",
+        "Method":  "POST",
+        "Path":  "/sensors",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_SENSOR\",\"message\":\"Name (1-100), type (1-50), unit (1-20) and alertThreshold are required.\"}"
+    },
+    {
+        "Test":  "No latest reading",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings/latest",
+        "Expected":  404,
+        "Actual":  404,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"READING_NOT_FOUND\",\"message\":\"This sensor has no readings yet.\"}"
+    },
+    {
+        "Test":  "Empty history",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"items\":[],\"total\":0,\"skip\":0,\"take\":100}"
+    },
+    {
+        "Test":  "Unknown sensor reading",
+        "Method":  "POST",
+        "Path":  "/sensors/ccb9fbb9-4140-4109-a538-fbd2192cdf53/readings",
+        "Expected":  404,
+        "Actual":  404,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"SENSOR_NOT_FOUND\",\"message\":\"The sensor does not exist.\"}"
+    },
+    {
+        "Test":  "Missing value",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_READING\",\"message\":\"Value and a valid measuredAt timestamp are required.\"}"
+    },
+    {
+        "Test":  "Missing timestamp",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_READING\",\"message\":\"Value and a valid measuredAt timestamp are required.\"}"
+    },
+    {
+        "Test":  "Invalid timestamp",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_REQUEST\",\"message\":\"Check the JSON body, content type and query parameters.\"}"
+    },
+    {
+        "Test":  "Above threshold",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  201,
+        "Actual":  201,
+        "Passed":  true,
+        "Location":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-18T03%3A00%3A00.0000000%2B00%3A00\u0026to=2026-11-18T03%3A00%3A00.0000000%2B00%3A00",
+        "Body":  "{\"id\":\"6237dbcf-32c0-49cc-9b6e-b4d4064df2aa\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T03:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.3946789+00:00\",\"value\":36,\"alertThreshold\":35,\"isAlert\":true}"
+    },
+    {
+        "Test":  "Follow reading Location",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-18T03%3A00%3A00.0000000%2B00%3A00\u0026to=2026-11-18T03%3A00%3A00.0000000%2B00%3A00",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"items\":[{\"id\":\"6237dbcf-32c0-49cc-9b6e-b4d4064df2aa\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T03:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.3946789+00:00\",\"value\":36,\"alertThreshold\":35,\"isAlert\":true}],\"total\":1,\"skip\":0,\"take\":100}"
+    },
+    {
+        "Test":  "Equal threshold",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  201,
+        "Actual":  201,
+        "Passed":  true,
+        "Location":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-18T02%3A00%3A00.0000000%2B00%3A00\u0026to=2026-11-18T02%3A00%3A00.0000000%2B00%3A00",
+        "Body":  "{\"id\":\"13e13cd7-ae45-4b49-a57f-6d82f13ae78c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T02:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4211672+00:00\",\"value\":35,\"alertThreshold\":35,\"isAlert\":false}"
+    },
+    {
+        "Test":  "Zero is valid",
+        "Method":  "POST",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  201,
+        "Actual":  201,
+        "Passed":  true,
+        "Location":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-18T01%3A00%3A00.0000000%2B00%3A00\u0026to=2026-11-18T01%3A00%3A00.0000000%2B00%3A00",
+        "Body":  "{\"id\":\"0269b802-98c5-4e26-b949-eb5c1a4bf0b8\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T01:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4231131+00:00\",\"value\":0,\"alertThreshold\":35,\"isAlert\":false}"
+    },
+    {
+        "Test":  "Latest by measurement time",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings/latest",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"id\":\"6237dbcf-32c0-49cc-9b6e-b4d4064df2aa\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T03:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.3946789+00:00\",\"value\":36,\"alertThreshold\":35,\"isAlert\":true}"
+    },
+    {
+        "Test":  "Inclusive time range",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-18T02:00:00Z\u0026to=2026-11-18T03:00:00Z",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"items\":[{\"id\":\"6237dbcf-32c0-49cc-9b6e-b4d4064df2aa\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T03:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.3946789+00:00\",\"value\":36,\"alertThreshold\":35,\"isAlert\":true},{\"id\":\"13e13cd7-ae45-4b49-a57f-6d82f13ae78c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T02:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4211672+00:00\",\"value\":35,\"alertThreshold\":35,\"isAlert\":false}],\"total\":2,\"skip\":0,\"take\":100}"
+    },
+    {
+        "Test":  "History pagination",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?skip=1\u0026take=1",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"items\":[{\"id\":\"13e13cd7-ae45-4b49-a57f-6d82f13ae78c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T02:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4211672+00:00\",\"value\":35,\"alertThreshold\":35,\"isAlert\":false}],\"total\":3,\"skip\":1,\"take\":1}"
+    },
+    {
+        "Test":  "Reversed range",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?from=2026-11-19T00:00:00Z\u0026to=2026-11-18T00:00:00Z",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_QUERY\",\"message\":\"Require from \u003c= to, skip \u003e= 0 and 1 \u003c= take \u003c= 500.\"}"
+    },
+    {
+        "Test":  "Invalid page size",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?take=501",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_QUERY\",\"message\":\"Require from \u003c= to, skip \u003e= 0 and 1 \u003c= take \u003c= 500.\"}"
+    },
+    {
+        "Test":  "Invalid query binding",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings?take=abc",
+        "Expected":  400,
+        "Actual":  400,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"INVALID_REQUEST\",\"message\":\"Check the JSON body, content type and query parameters.\"}"
+    },
+    {
+        "Test":  "20 concurrent readings retained",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971/readings",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"items\":[{\"id\":\"97f8084c-8d33-4d41-860a-9eff6bf0829c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4452097+00:00\",\"value\":19,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"3d808d9a-4523-43d7-b6dd-5a1b97045269\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4451642+00:00\",\"value\":17,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"785385f9-ccc3-480a-a3ab-d3450e182f06\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.44516+00:00\",\"value\":18,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"1c67aefa-f804-44bf-9b86-6cb27f21bf57\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4443279+00:00\",\"value\":16,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"8d0724c5-aa2c-4807-9d17-e0304c88fe78\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4442544+00:00\",\"value\":14,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"c6d1b404-975b-4c79-92f7-05ba732ffd2c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4442499+00:00\",\"value\":15,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"1a0a4806-ba01-4345-add3-5d691436af77\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4441919+00:00\",\"value\":13,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"9b45c9df-ad63-4a7a-9d47-4ccb0e89d5e6\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4439872+00:00\",\"value\":12,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"cb73ce72-648e-462e-981d-2453219fc948\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4434016+00:00\",\"value\":10,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"67db83bb-ad7d-4569-838b-d824dc15e4cb\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.443159+00:00\",\"value\":9,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"1325c968-822a-4c3c-a45c-bb024a7edc41\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4431255+00:00\",\"value\":11,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"efdd3753-82ce-41dd-85a4-b34d7c07a340\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4422644+00:00\",\"value\":6,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"ad919af6-c663-47f5-8dc8-03fcd31aaab2\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4421625+00:00\",\"value\":7,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"84c12cc2-0fc9-4c61-8733-e584381c93c0\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4421394+00:00\",\"value\":8,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"11d65583-f39c-403b-9bc6-39ef2aa5c15d\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4415431+00:00\",\"value\":3,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"40301641-6eed-431b-9d3e-c0254a6f471d\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4415064+00:00\",\"value\":4,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"2e9bddc3-4364-4003-b797-8cc6e3b7801a\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4415018+00:00\",\"value\":5,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"bdabf698-18ca-4d3b-95c7-125d04b2074c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4407416+00:00\",\"value\":1,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"9e39630a-a6ed-4acb-9948-4192fce9aaea\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4399452+00:00\",\"value\":2,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"97687515-a881-443a-bfbc-3afcded70a87\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T04:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4387321+00:00\",\"value\":0,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"6237dbcf-32c0-49cc-9b6e-b4d4064df2aa\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T03:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.3946789+00:00\",\"value\":36,\"alertThreshold\":35,\"isAlert\":true},{\"id\":\"13e13cd7-ae45-4b49-a57f-6d82f13ae78c\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T02:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4211672+00:00\",\"value\":35,\"alertThreshold\":35,\"isAlert\":false},{\"id\":\"0269b802-98c5-4e26-b949-eb5c1a4bf0b8\",\"sensorId\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"measuredAt\":\"2026-11-18T01:00:00+00:00\",\"receivedAt\":\"2026-11-18T08:02:07.4231131+00:00\",\"value\":0,\"alertThreshold\":35,\"isAlert\":false}],\"total\":23,\"skip\":0,\"take\":100}"
+    },
+    {
+        "Test":  "Two demo sensors registered",
+        "Method":  "GET",
+        "Path":  "/sensors",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "[{\"id\":\"1a539eaf-45c4-4a6c-8e38-e00f004b1971\",\"name\":\"Room A\",\"type\":\"temperature\",\"unit\":\"C\",\"alertThreshold\":35,\"createdAt\":\"2026-11-18T08:02:07.3198313+00:00\"},{\"id\":\"cfeec304-7207-47ea-a95f-854631522370\",\"name\":\"Nhiệt độ phòng A\",\"type\":\"temperature\",\"unit\":\"°C\",\"alertThreshold\":35,\"createdAt\":\"2026-11-18T08:02:07.8023379+00:00\"},{\"id\":\"17ed48b3-9b57-487a-83fb-72811bcc6d11\",\"name\":\"Độ ẩm phòng A\",\"type\":\"humidity\",\"unit\":\"%\",\"alertThreshold\":80,\"createdAt\":\"2026-11-18T08:02:07.8051595+00:00\"}]"
+    },
+    {
+        "Test":  "API stopped",
+        "Method":  "GET",
+        "Path":  "/",
+        "Expected":  "connection failure",
+        "Actual":  "connection failure",
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "No HTTP response"
+    },
+    {
+        "Test":  "Client handles offline API",
+        "Method":  "CLI",
+        "Path":  "Sensor.Client",
+        "Expected":  1,
+        "Actual":  1,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "Connection failure handled"
+    },
+    {
+        "Test":  "Memory resets after restart",
+        "Method":  "GET",
+        "Path":  "/sensors",
+        "Expected":  200,
+        "Actual":  200,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "[]"
+    },
+    {
+        "Test":  "Old sensor gone after restart",
+        "Method":  "GET",
+        "Path":  "/sensors/1a539eaf-45c4-4a6c-8e38-e00f004b1971",
+        "Expected":  404,
+        "Actual":  404,
+        "Passed":  true,
+        "Location":  "",
+        "Body":  "{\"code\":\"SENSOR_NOT_FOUND\",\"message\":\"The sensor does not exist.\"}"
+    }
+]

@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Sensor.Api/Sensor.Api.csproj" />
+    <Project Path="src/Sensor.Client/Sensor.Client.csproj" />
+    <Project Path="src/Sensor.Contracts/Sensor.Contracts.csproj" />
+  </Folder>
+</Solution>

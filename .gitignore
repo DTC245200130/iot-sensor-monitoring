@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.vs/
+.vscode/
+*.user
+*.suo
+tmp/
+.env
+!.env.example
+artifacts/*.log
+artifacts/*.json
